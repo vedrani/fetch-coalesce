@@ -1,0 +1,10 @@
+{
+    presets: ['es2015-loose'],
+    sourceMaps: true,
+    plugins: [
+        ['transform-runtime', {
+            polyfill: false,
+            regenerator: false
+        }]
+    ]
+}

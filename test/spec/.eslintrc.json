@@ -1,0 +1,26 @@
+{
+    "env": {
+        "jasmine": true
+    },
+    "extends": ["airbnb-base", "plugin:jasmine/recommended"],
+    "plugins": [
+        "jasmine"
+    ],
+    "rules": {
+        "jasmine/no-spec-dupes": [
+            "warn",
+            "branch"
+        ],
+        "jasmine/no-suite-dupes": [
+            "warn",
+            "branch"
+        ],
+        "max-len": [
+            "off"
+        ],
+        "indent": [
+            "error",
+            4
+        ]
+    }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "fetch-coalesce",
+  "version": "0.0.0",
+  "description": "Coalesces multiple calls to fetch() for the same URL into a single network request.",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "grunt test",
+    "tdd": "grunt tdd",
+    "build": "grunt build",
+    "prepublish": "npm test && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cinema6/fetch-coalesce.git"
+  },
+  "keywords": [
+    "fetch",
+    "ajax",
+    "coalesce",
+    "debounce",
+    "cache",
+    "http"
+  ],
+  "author": "Reelcontent, Inc.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cinema6/fetch-coalesce/issues"
+  },
+  "homepage": "https://github.com/cinema6/fetch-coalesce",
+  "devDependencies": {
+    "babel-plugin-transform-runtime": "^6.12.0",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-es2015-loose": "^7.0.0",
+    "babelify": "^7.3.0",
+    "browserify": "^13.1.0",
+    "es6-promise": "^3.2.1",
+    "eslint": "^3.2.2",
+    "eslint-config-airbnb-base": "^5.0.1",
+    "eslint-plugin-import": "^1.12.0",
+    "eslint-plugin-jasmine": "^1.8.1",
+    "fetch-mock": "^5.0.3",
+    "grunt": "^1.0.1",
+    "grunt-babel": "^6.0.0",
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-eslint": "^19.0.0",
+    "grunt-karma": "^2.0.0",
+    "isomorphic-fetch": "^2.2.1",
+    "jasmine-core": "^2.4.1",
+    "karma": "^1.1.2",
+    "karma-browserify": "^5.1.0",
+    "karma-jasmine": "^1.0.2",
+    "karma-phantomjs-launcher": "^1.0.1",
+    "phantomjs": "^2.1.7",
+    "watchify": "^3.7.0"
+  },
+  "dependencies": {
+    "babel-runtime": "^6.11.6"
+  }
+}
