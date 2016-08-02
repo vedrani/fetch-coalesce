@@ -1,6 +1,6 @@
 {
   "name": "fetch-coalesce",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Coalesces multiple calls to fetch() for the same URL into a single network request.",
   "main": "dist/index.js",
   "scripts": {
