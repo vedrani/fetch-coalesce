@@ -123,7 +123,6 @@ describe('coalesce(config)', () => {
 
                 it('should call fetch()', () => {
                     expect(fetch).toHaveBeenCalledWith(url, options);
-                    expect(result).toBe(fetch.calls.mostRecent().returnValue);
                 });
 
                 describe('if called again with the same args', () => {
@@ -141,11 +140,15 @@ describe('coalesce(config)', () => {
 
                     describe('when the request succeeds', () => {
                         let response;
-                        let success;
+                        let first;
+                        let second;
 
                         beforeEach(done => {
-                            success = jasmine.createSpy('success()');
-                            secondResult.then(success);
+                            first = jasmine.createSpy('first()');
+                            result.then(first);
+
+                            second = jasmine.createSpy('second()');
+                            secondResult.then(second);
 
                             response = {
                                 status: 200,
@@ -161,23 +164,28 @@ describe('coalesce(config)', () => {
 
                         afterEach(() => {
                             response = null;
-                            success = null;
+                            first = null;
+                            second = null;
                         });
 
                         it('should fulfill with a clone of the response', () => {
                             expect(response.clone).toHaveBeenCalledWith();
-                            expect(success).toHaveBeenCalledWith(response);
-                            expect(success.calls.mostRecent().args[0]).toBe(response.clone.calls.mostRecent().returnValue);
+
+                            expect(first).toHaveBeenCalledWith(response);
+                            expect(second).toHaveBeenCalledWith(response);
+
+                            expect(first.calls.mostRecent().args[0]).toBe(response.clone.calls.all()[0].returnValue);
+                            expect(second.calls.mostRecent().args[0]).toBe(response.clone.calls.all()[1].returnValue);
                         });
 
                         describe('the next time a request is made', () => {
                             beforeEach(() => {
+                                fetch.calls.reset();
                                 secondResult = coalesced(url, options);
                             });
 
                             it('should call fetch()', () => {
                                 expect(fetch).toHaveBeenCalledWith(url, options);
-                                expect(secondResult).toBe(fetch.calls.mostRecent().returnValue);
                             });
                         });
                     });
@@ -207,12 +215,12 @@ describe('coalesce(config)', () => {
 
                         describe('the next time a request is made', () => {
                             beforeEach(() => {
+                                fetch.calls.reset();
                                 secondResult = coalesced(url, options);
                             });
 
                             it('should call fetch()', () => {
                                 expect(fetch).toHaveBeenCalledWith(url, options);
-                                expect(secondResult).toBe(fetch.calls.mostRecent().returnValue);
                             });
                         });
                     });
@@ -232,36 +240,30 @@ describe('coalesce(config)', () => {
                 });
 
                 describe('if called again with a different URL', () => {
-                    let secondResult;
-
                     beforeEach(() => {
                         fetch.calls.reset();
 
                         url += 'a';
 
-                        secondResult = coalesced(url, options);
+                        coalesced(url, options);
                     });
 
                     it('should call fetch()', () => {
                         expect(fetch).toHaveBeenCalledWith(url, options);
-                        expect(secondResult).toBe(fetch.calls.mostRecent().returnValue);
                     });
                 });
 
                 describe('if called again with different options', () => {
-                    let secondResult;
-
                     beforeEach(() => {
                         fetch.calls.reset();
 
                         options.headers.Accept = 'application/json';
 
-                        secondResult = coalesced(url, options);
+                        coalesced(url, options);
                     });
 
                     it('should call fetch()', () => {
                         expect(fetch).toHaveBeenCalledWith(url, options);
-                        expect(secondResult).toBe(fetch.calls.mostRecent().returnValue);
                     });
                 });
             }));
