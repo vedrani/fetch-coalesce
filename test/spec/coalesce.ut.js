@@ -1,5 +1,6 @@
 import coalesce from '../../lib/coalesce';
 import defer from 'promise-defer';
+import clone from 'lodash/cloneDeep';
 
 const VERBS = [
     'options',
@@ -138,27 +139,83 @@ describe('coalesce(config)', () => {
                         expect(fetch).not.toHaveBeenCalled();
                     });
 
-                    it('should return the existing Promise', () => {
-                        expect(secondResult).toBe(result);
-                    });
+                    describe('when the request succeeds', () => {
+                        let response;
+                        let success;
 
-                    ['resolve', 'reject'].forEach(action => describe(`after the first Promise ${action}s`, () => {
                         beforeEach(done => {
-                            fetch.calls.reset();
+                            success = jasmine.createSpy('success()');
+                            secondResult.then(success);
 
-                            deferred[action]();
+                            response = {
+                                status: 200,
+                                statusText: 'OK',
+                                clone: jasmine.createSpy('response.clone()').and.callFake(function cloneResponse() {
+                                    return clone(this);
+                                }),
+                            };
 
-                            setTimeout(() => {
+                            deferred.resolve(response);
+                            setTimeout(done);
+                        });
+
+                        afterEach(() => {
+                            response = null;
+                            success = null;
+                        });
+
+                        it('should fulfill with a clone of the response', () => {
+                            expect(response.clone).toHaveBeenCalledWith();
+                            expect(success).toHaveBeenCalledWith(response);
+                            expect(success.calls.mostRecent().args[0]).toBe(response.clone.calls.mostRecent().returnValue);
+                        });
+
+                        describe('the next time a request is made', () => {
+                            beforeEach(() => {
                                 secondResult = coalesced(url, options);
-                                done();
+                            });
+
+                            it('should call fetch()', () => {
+                                expect(fetch).toHaveBeenCalledWith(url, options);
+                                expect(secondResult).toBe(fetch.calls.mostRecent().returnValue);
                             });
                         });
+                    });
 
-                        it('should call fetch()', () => {
-                            expect(fetch).toHaveBeenCalledWith(url, options);
-                            expect(secondResult).toBe(fetch.calls.mostRecent().returnValue);
+                    describe('when the request fails', () => {
+                        let reason;
+                        let failure;
+
+                        beforeEach(done => {
+                            reason = new Error('Something bad happened.');
+
+                            failure = jasmine.createSpy('failure()');
+                            secondResult.catch(failure);
+
+                            deferred.reject(reason);
+                            setTimeout(done);
                         });
-                    }));
+
+                        afterEach(() => {
+                            reason = null;
+                            failure = null;
+                        });
+
+                        it('should reject with the reason', () => {
+                            expect(failure).toHaveBeenCalledWith(reason);
+                        });
+
+                        describe('the next time a request is made', () => {
+                            beforeEach(() => {
+                                secondResult = coalesced(url, options);
+                            });
+
+                            it('should call fetch()', () => {
+                                expect(fetch).toHaveBeenCalledWith(url, options);
+                                expect(secondResult).toBe(fetch.calls.mostRecent().returnValue);
+                            });
+                        });
+                    });
 
                     describe('but a differently-cased method', () => {
                         beforeEach(() => {
@@ -169,7 +226,7 @@ describe('coalesce(config)', () => {
 
                         it('should not call fetch()', () => {
                             expect(fetch).not.toHaveBeenCalled();
-                            expect(coalesced(url, options)).toBe(result);
+                            expect(coalesced(url, options)).toEqual(jasmine.any(Promise));
                         });
                     });
                 });
@@ -221,7 +278,10 @@ describe('coalesce(config)', () => {
                 });
 
                 it('should be treated like a GET', () => {
-                    expect(coalesced(url)).toBe(coalesced(url, { method: 'GET' }));
+                    coalesced(url);
+                    coalesced(url, { method: 'GET' });
+
+                    expect(fetch.calls.count()).toBe(1);
                 });
             });
         });
@@ -248,14 +308,26 @@ describe('coalesce(config)', () => {
                     'HEAD',
                     'PUT',
                     'DELETE',
-                ].forEach(verb => expect(coalesced('foo', { method: verb })).toBe(coalesced('foo', { method: verb })));
+                ].forEach(verb => {
+                    fetch.calls.reset();
+                    coalesced('foo', { method: verb });
+                    coalesced('foo', { method: verb });
+
+                    expect(fetch.calls.count()).toBe(1);
+                });
             });
 
             it('should not cache non-idempotent verbs', () => {
                 [
                     'POST',
                     'PATCH',
-                ].forEach(verb => expect(coalesced('foo', { method: verb })).not.toBe(coalesced('foo', { method: verb })));
+                ].forEach(verb => {
+                    fetch.calls.reset();
+                    coalesced('foo', { method: verb });
+                    coalesced('foo', { method: verb });
+
+                    expect(fetch.calls.count()).toBe(2);
+                });
             });
         });
     });
