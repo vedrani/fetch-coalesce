@@ -90,8 +90,7 @@ describe('coalesce(config)', () => {
                     const one = coalesced(url, options);
                     const two = coalesced(url, options);
 
-
-                    fetch.calls.all().forEach(call => expect(call.args).toEqual([url, options]));
+                    fetch.calls.all().forEach(call => expect(call.args).toEqual([new Request(url, options)]));
                     expect(fetch.calls.count()).toBe(2, 'fetch() not called the correct number of times.');
                     expect(one).toBe(fetch.calls.all()[0].returnValue);
                     expect(two).toBe(fetch.calls.all()[1].returnValue);
@@ -122,7 +121,7 @@ describe('coalesce(config)', () => {
                 });
 
                 it('should call fetch()', () => {
-                    expect(fetch).toHaveBeenCalledWith(url, options);
+                    expect(fetch).toHaveBeenCalledWith(new Request(url, options));
                 });
 
                 describe('if called again with the same args', () => {
@@ -185,7 +184,7 @@ describe('coalesce(config)', () => {
                             });
 
                             it('should call fetch()', () => {
-                                expect(fetch).toHaveBeenCalledWith(url, options);
+                                expect(fetch).toHaveBeenCalledWith(new Request(url, options));
                             });
                         });
                     });
@@ -220,7 +219,7 @@ describe('coalesce(config)', () => {
                             });
 
                             it('should call fetch()', () => {
-                                expect(fetch).toHaveBeenCalledWith(url, options);
+                                expect(fetch).toHaveBeenCalledWith(new Request(url, options));
                             });
                         });
                     });
@@ -249,7 +248,7 @@ describe('coalesce(config)', () => {
                     });
 
                     it('should call fetch()', () => {
-                        expect(fetch).toHaveBeenCalledWith(url, options);
+                        expect(fetch).toHaveBeenCalledWith(new Request(url, options));
                     });
                 });
 
@@ -263,7 +262,7 @@ describe('coalesce(config)', () => {
                     });
 
                     it('should call fetch()', () => {
-                        expect(fetch).toHaveBeenCalledWith(url, options);
+                        expect(fetch).toHaveBeenCalledWith(new Request(url, options));
                     });
                 });
             }));
