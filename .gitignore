@@ -39,3 +39,7 @@ jspm_packages
 
 # build directory
 dist
+
+# webstorm
+.DS_STORE
+.idea
